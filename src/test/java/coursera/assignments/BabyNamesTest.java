@@ -1,6 +1,5 @@
 package coursera.assignments;
 
-import coursera.assignments.BabyNames;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,7 +43,7 @@ public class BabyNamesTest {
             assertEquals(-1, babyNames.getRank(2012, "Kitti", "M"));
         }
 
-        @DisplayName("Throws exception for non existing year (no file for this year)")
+        @DisplayName("Throws exception when there is no data for a year")
         @Test
         void getRankForNonExistingYear() {
             RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
@@ -53,16 +52,53 @@ public class BabyNamesTest {
             assertEquals("No data for that year: 1879", exception.getMessage());
         }
 
-        @DisplayName("Get no highest rank for non existing gender")
+        @DisplayName("Throws exception when there is no data for a gender")
         @Test
         void getRankForNonExistingGender() {
-            assertEquals(-1, babyNames.getRank(2012, "Ava", "E"));
+            RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
+                babyNames.getRank(2012, "Ava", "E");
+        });
+        assertEquals("No data for this gender: E", exception.getMessage());
         }
     }
 
-    @Disabled
+
     @Nested
     class testGetName {
+        @DisplayName("Get name for existing rank (girl)")
+        @Test
+        void getNameForExistingGirlName() {
+            assertEquals("Georgia", babyNames.getName(1935, 123, "F"));
+        }
+
+        @DisplayName("Get name for existing rank (boy)")
+        @Test
+        void getNameForExistingBoyRank() {
+            assertEquals("Albert", babyNames.getName(1894, 16, "M"));
+        }
+        @DisplayName("Get no name for non existing rank")
+        @Test
+        void getNameForNonExistingRank() {
+            assertEquals("NO NAME", babyNames.getName(1880, 2000, "F"));
+        }
+
+        @DisplayName("Throws exception when there is no data for a year")
+        @Test
+        void getNameForNonExistingYear() {
+            RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
+                babyNames.getName(1879, 17, "F");
+            });
+            assertEquals("No data for that year: 1879", exception.getMessage());
+        }
+
+        @DisplayName("Get no name for non existing gender")
+        @Test
+        void getNameForNonExistingGender() {
+            RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
+                babyNames.getName(2009, 20, "E");
+            });
+            assertEquals("No data for this gender: E", exception.getMessage());
+        }
     }
 
     @Disabled

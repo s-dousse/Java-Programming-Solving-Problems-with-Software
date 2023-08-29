@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 class BabyNames {
+    private final String GENDERS = "FM";
     public void totalBirths(int year) {
         int totalGirls = 0;
         int totalBoys = 0;
@@ -38,6 +39,7 @@ class BabyNames {
     }
 
     public int getRank(int year, String name, String gender) {
+        gender = validateGender(gender);
         int rank = 0;
 
         List<String[]> records = getListOfBabyNamesPerYear(year);
@@ -54,6 +56,7 @@ class BabyNames {
     }
 
     public String getName(int year, int rank, String gender) {
+        gender = validateGender(gender);
         List<String[]> records = getListOfBabyNamesPerYear(year);
 
         for (String[] record : records) {
@@ -67,12 +70,14 @@ class BabyNames {
     }
 
     public void whatIsNameInYear(String name, int year, int newYear, String gender) {
+        gender = validateGender(gender);
         int actualRank = getRank(year, name, gender);
         String newName = getName(newYear, actualRank, gender);
         System.out.println(name + " born in " + year + " would be " + newName + " if she was born in " + newYear);
     }
 
     public int yearOfHighestRank(String name, String gender) {
+        gender = validateGender(gender);
         int year = 0;
         int highestRank = -1;
 
@@ -92,6 +97,7 @@ class BabyNames {
     }
 
     public double getAverageRank(String name,String gender) {
+        gender = validateGender(gender);
         int numbOfFiles = 0;
         int totalRank = 0;
         File[] directory = getListOfBabyNamesForAllYears();
@@ -106,6 +112,7 @@ class BabyNames {
     }
 
     public int getTotalBirthsRankedHigher(int year, String name, String gender) {
+        gender = validateGender(gender);
         int rank = getRank(year, name, gender);
         int totalBirths = 0;
 
@@ -130,6 +137,11 @@ class BabyNames {
         }
 
         return totalBirths;
+    }
+
+    private String validateGender(String gender) {
+        if (GENDERS.contains(gender.toUpperCase())) { return gender.toUpperCase(); }
+        throw new RuntimeException("No data for this gender: " + gender);
     }
 
     private List<String[]> getListOfBabyNamesPerYear(int year) {
