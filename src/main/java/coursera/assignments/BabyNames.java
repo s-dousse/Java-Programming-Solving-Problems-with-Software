@@ -140,7 +140,7 @@ class BabyNames {
         try {
             reader = Files.newBufferedReader(path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("No data for that year: " + year);
         }
 
         CSVReader csvReader = new CSVReader(reader);
