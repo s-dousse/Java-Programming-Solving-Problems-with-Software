@@ -1,22 +1,27 @@
 package coursera.assignments;
 
-import edu.duke.DirectoryResource;
-import edu.duke.FileResource;
-import org.apache.commons.csv.CSVRecord;
-
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 class BabyNames {
-    public void totalBirths() {
+    public void totalBirths(int year) {
         int totalGirls = 0;
         int totalBoys = 0;
         int numGirlsNames = 0;
         int numBoysNames = 0;
 
-        FileResource fr = new FileResource();
-        for (CSVRecord record : fr.getCSVParser(false)) {
-            int numBorn = Integer.parseInt(record.get(2));
-            if (record.get(1).equals("F")) {
+        List<String[]> records = getListOfBabyNamesPerYear(year);
+
+        for (String[] record : records) {
+            int numBorn = Integer.parseInt(record[2]);
+            if (record[1].equals("F")) {
                 totalGirls += numBorn;
                 numGirlsNames++;
             } else {
@@ -34,14 +39,13 @@ class BabyNames {
 
     public int getRank(int year, String name, String gender) {
         int rank = 0;
-        boolean nameFound = false;
 
-        FileResource fr = new FileResource("Baby_Names_Data/app/src/main/resources/us_babynames_by_year/yob"+ year + ".csv");
+        List<String[]> records = getListOfBabyNamesPerYear(year);
 
-        for (CSVRecord record : fr.getCSVParser(false)) {
-            if ( record.get(1).equals(gender)) {
+        for (String[] record : records) {
+            if ( record[1].equals(gender)) {
                 rank++;
-                if (record.get(0).equals(name)) {
+                if (record[0].equals(name)) {
                     return rank;
                 }
             }
@@ -50,10 +54,10 @@ class BabyNames {
     }
 
     public String getName(int year, int rank, String gender) {
-        FileResource fr = new FileResource("Baby_Names_Data/app/src/main/resources/us_babynames_by_year/yob"+ year + ".csv");
+        List<String[]> records = getListOfBabyNamesPerYear(year);
 
-        for (CSVRecord r : fr.getCSVParser(false)){
-            String name = r.get(0);
+        for (String[] record : records) {
+            String name = record[0];
             if(rank == getRank(year, name, gender)){
                 return name;
             }
@@ -72,9 +76,9 @@ class BabyNames {
         int year = 0;
         int highestRank = -1;
 
-        DirectoryResource directory = new DirectoryResource();
-        DirectoryResource dr = new DirectoryResource();
-        for (File f : dr.selectedFiles()) {
+        File[] directory = getListOfBabyNamesForAllYears();
+
+        for (File f : directory) {
             int currentYear = Integer.parseInt(f.getName().substring(3, 7));
             int currentRank = getRank(currentYear, name, gender);
 
@@ -90,8 +94,9 @@ class BabyNames {
     public double getAverageRank(String name,String gender) {
         int numbOfFiles = 0;
         int totalRank = 0;
-        DirectoryResource directory = new DirectoryResource();
-        for (File f : directory.selectedFiles()) {
+        File[] directory = getListOfBabyNamesForAllYears();
+
+        for (File f : directory) {
             numbOfFiles++;
             int currentYear = Integer.parseInt(f.getName().substring(3, 7));
             if (getRank(currentYear, name, gender) == -1) { break; }
@@ -107,16 +112,16 @@ class BabyNames {
         System.out.println("Name: " + name + ". Rank: " + getRank(year, name, gender));
 
         int recordRank = 0;
-        FileResource fr = new FileResource("Baby_Names_Data/app/src/main/resources/us_babynames_by_year/yob"+ year + ".csv");
+        List<String[]> records = getListOfBabyNamesPerYear(year);
 
-        for (CSVRecord record : fr.getCSVParser(false)) {
-            String currentGender = record.get(1);
+        for (String[] record : records) {
+            String currentGender = record[1];
 
             if (currentGender.equals(gender)) {
                 recordRank++;
 
                 if (recordRank < rank) {
-                    int currentBirths = Integer.parseInt(record.get(2));
+                    int currentBirths = Integer.parseInt(record[2]);
                     totalBirths += currentBirths;
                 } else {
                     break;
@@ -127,64 +132,35 @@ class BabyNames {
         return totalBirths;
     }
 
-    public void testTotalBirths() {
-        totalBirths();
+    private List<String[]> getListOfBabyNamesPerYear(int year) {
+        String filename = "src/main/resources/us_babynames_by_year/yob"+ year + ".csv";
+
+        Reader reader = null;
+        Path path = Paths.get(filename);
+        try {
+            reader = Files.newBufferedReader(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        CSVReader csvReader = new CSVReader(reader);
+        List<String[]> records = null;
+        try {
+            records = csvReader.readAll();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (CsvException e) {
+            throw new RuntimeException(e);
+        }
+        return records;
     }
 
-    public void testGetRank() {
-        int year = 1960;
-        String name = "Emily";
-        String gender = "F";
-
-        int rank = getRank(year, name, gender);
-        System.out.println(name + " rank is " + rank);
-    }
-
-    public void testGetName() {
-        int year = 1982;
-        int rank = 450;
-        String gender = "M";
-
-        String name = getName(year, rank, gender);
-        System.out.println(year + " rank " + rank + " is " + name);
-    }
-
-    public void testWhatIsNameInYear() {
-        whatIsNameInYear("Susan", 1972, 2014, "F");
-        whatIsNameInYear("Owen", 1974, 2014, "M");
-    }
-
-    public void testYearOfHighestRank() {
-        String name = "Genevieve";
-        String gender = "F";
-        System.out.println(name + " most popular year is " + yearOfHighestRank(name, gender));
-    }
-
-    public void testGetAverageRank() {
-        String name = "Susan";
-        String gender = "F";
-        System.out.println("Average rank for " + name + " is " + getAverageRank(name, gender));
-
-        name = "Robert";
-        gender = "M";
-        System.out.println("Average rank for " + name + " is " + getAverageRank(name, gender));
-    }
-
-    public void testGetTotalBirthsRankedHigher() {
-        int year = 1990;
-        String name = "Emily";
-        String gender = "F";
-        System.out.println("Total births higher than " + name + " is " + getTotalBirthsRankedHigher(year, name, gender));
-
-        year = 1990;
-        name = "Drew";
-        gender = "M";
-        System.out.println("Total births higher than " + name + " is " + getTotalBirthsRankedHigher(year, name, gender));
+    private File[] getListOfBabyNamesForAllYears() {
+        File dir = new File("src/main/resources/us_babynames_by_year");
+        File[] files = dir.listFiles((dir1, name) -> name.toLowerCase().endsWith(".csv"));
+        return files;
     }
 
     public static void main(String[] args) {
     }
 }
-
-//TODO: USE CSVParser.getCurrentLineNumber()???
-//TODO: extract method to get file name base on year
