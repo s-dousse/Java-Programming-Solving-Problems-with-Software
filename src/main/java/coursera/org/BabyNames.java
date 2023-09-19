@@ -1,4 +1,4 @@
-package coursera.assignments;
+package coursera.org;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
@@ -39,7 +39,8 @@ class BabyNames {
     }
 
     public int getRank(int year, String name, String gender) {
-        gender = validateGender(gender);
+        name = sanitizeName(name);
+        gender = sanitizeGender(gender);
         int rank = 0;
 
         List<String[]> records = getListOfBabyNamesPerYear(year);
@@ -56,7 +57,7 @@ class BabyNames {
     }
 
     public String getName(int year, int rank, String gender) {
-        gender = validateGender(gender);
+        gender = sanitizeGender(gender);
         List<String[]> records = getListOfBabyNamesPerYear(year);
 
         for (String[] record : records) {
@@ -69,15 +70,19 @@ class BabyNames {
 
     }
 
-    public void whatIsNameInYear(String name, int year, int newYear, String gender) {
-        gender = validateGender(gender);
+    public String whatIsNameInYear(String name, int year, int newYear, String gender) {
+        name = sanitizeName(name);
+        gender = sanitizeGender(gender);
+
         int actualRank = getRank(year, name, gender);
         String newName = getName(newYear, actualRank, gender);
-        System.out.println(name + " born in " + year + " would be " + newName + " if she was born in " + newYear);
+//        System.out.println(name + " born in " + year + " would be " + newName + " if she was born in " + newYear);
+        return newName;
     }
 
     public int yearOfHighestRank(String name, String gender) {
-        gender = validateGender(gender);
+        name = sanitizeName(name);
+        gender = sanitizeGender(gender);
         int year = 0;
         int highestRank = -1;
 
@@ -97,7 +102,8 @@ class BabyNames {
     }
 
     public double getAverageRank(String name,String gender) {
-        gender = validateGender(gender);
+        name = sanitizeName(name);
+        gender = sanitizeGender(gender);
         int numbOfFiles = 0;
         int totalRank = 0;
         File[] directory = getListOfBabyNamesForAllYears();
@@ -112,7 +118,8 @@ class BabyNames {
     }
 
     public int getTotalBirthsRankedHigher(int year, String name, String gender) {
-        gender = validateGender(gender);
+        name = sanitizeName(name);
+        gender = sanitizeGender(gender);
         int rank = getRank(year, name, gender);
         int totalBirths = 0;
 
@@ -139,12 +146,19 @@ class BabyNames {
         return totalBirths;
     }
 
-    private String validateGender(String gender) {
-        if (GENDERS.contains(gender.toUpperCase())) { return gender.toUpperCase(); }
+    public String sanitizeGender(String gender) {
+        if (GENDERS.contains(gender.toUpperCase()) && gender.length() == 1) { return gender.toUpperCase(); }
         throw new RuntimeException("No data for this gender: " + gender);
     }
 
-    private List<String[]> getListOfBabyNamesPerYear(int year) {
+    public String sanitizeName(String name) {
+        if (name.trim().matches("[a-zA-Z]+") && name.length() > 0) {
+            return name.trim().substring(0, 1).toUpperCase() + name.trim().substring(1).toLowerCase();
+        }
+        throw new RuntimeException("Not a valid name: " + name);
+    }
+
+    public List<String[]> getListOfBabyNamesPerYear(int year) {
         String filename = "src/main/resources/us_babynames_by_year/yob"+ year + ".csv";
 
         Reader reader = null;
