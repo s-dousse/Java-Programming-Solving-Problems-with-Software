@@ -1,4 +1,6 @@
 ## Java-Programming-Solving-Problems-with-Software
+[View Coursera Certificate](https://coursera.org/share/fc69e48bdcaa796396e79311eca3be14) 🧑‍🎓
+
 My project (module 4) for the Coursera course Java Programming: Solving Problems with Software by Duke University
 
 ### Module 1 - Fundamental Java Syntax and Semantics
