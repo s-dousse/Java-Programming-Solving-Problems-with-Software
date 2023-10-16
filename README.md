@@ -1,5 +1,5 @@
 ## Java-Programming-Solving-Problems-with-Software
-[View Coursera Certificate](https://coursera.org/share/fc69e48bdcaa796396e79311eca3be14) 🧑‍🎓
+[View Coursera Certificate](https://coursera.org/share/e122099997862ccd54aebdb8889a331f) 🧑‍🎓
 
 My project (module 4) for the Coursera course Java Programming: Solving Problems with Software by Duke University
 
